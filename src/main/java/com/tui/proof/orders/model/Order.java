@@ -1,10 +1,10 @@
-package com.tui.proof.model;
+package com.tui.proof.orders.model;
 
 import lombok.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
@@ -14,12 +14,14 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class Order {
 
-    @NotEmpty
     private String number;
-    @NotNull
+
+    @NotNull(message = "Delivery address is required!")
+    @Valid
     private Address deliveryAddress;
-    @Min(5)
-    @Max(15)
+    @Min(value = 5, message = "Number of pilotes have to be equal 5, 10 or 15")
+    @Max(value = 15, message = "Number of pilotes have to be equal 5, 10 or 15")
     private int pilotes;
+    @Min(value = 0, message = "Order total cannot be a negative value.")
     private BigDecimal orderTotal;
 }

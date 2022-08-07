@@ -1,4 +1,4 @@
-package com.tui.proof;
+package com.tui.proof.web.model;
 
 import java.util.ArrayList;
 import java.util.List;

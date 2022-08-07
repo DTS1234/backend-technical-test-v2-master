@@ -1,11 +1,10 @@
-package com.tui.proof.ws;
+package com.tui.proof.web.controller;
 
-import com.tui.proof.ValidationErrorResponse;
-import com.tui.proof.Violation;
+import com.tui.proof.web.model.ValidationErrorResponse;
+import com.tui.proof.web.model.Violation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
