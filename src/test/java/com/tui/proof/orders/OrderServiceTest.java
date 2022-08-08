@@ -15,8 +15,13 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.NoSuchElementException;
 
-import static com.tui.proof.orders.Constants.SMALL;
+import static com.tui.proof.orders.Constants.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -81,7 +86,7 @@ class OrderServiceTest {
 
     @ParameterizedTest
     @ValueSource(ints = {6, 11, 14, 16})
-    void shouldThrowWhenPilotesValueIsNot5or10or15(int wrongPilotesValue) {
+    void shouldThrowWhenPilotesValueIsNot5or10or15ForCreate(int wrongPilotesValue) {
         Order orderRequest = Order.builder()
                 .deliveryAddress(Address.builder()
                         .city("city")
@@ -103,4 +108,133 @@ class OrderServiceTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Pilotes value can be only equal to 5, 10 or 15.");
     }
+
+    @ParameterizedTest
+    @ValueSource(ints = {6, 11, 14, 16})
+    void shouldThrowWhenPilotesValueIsNot5or10or15ForUpdate(int wrongPilotesValue) {
+        Order orderRequest = Order.builder()
+                .deliveryAddress(Address.builder()
+                        .city("city")
+                        .country("country")
+                        .postcode("12345")
+                        .street("street")
+                        .build())
+                .pilotes(wrongPilotesValue)
+                .build();
+
+        Client client = Client.builder()
+                .firstName("first")
+                .lastName("Last")
+                .email("mail@mail.com")
+                .telephone("123456789")
+                .build();
+
+        Assertions.assertThatThrownBy(() -> subject.updateOrder(orderRequest, client))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Pilotes value can be only equal to 5, 10 or 15.");
+    }
+
+    @Test
+    void shouldUpdatePriceValueWhenUpdating() {
+        Order orderRequest = Order.builder()
+                .number("1")
+                .deliveryAddress(Address.builder()
+                        .city("city")
+                        .country("country")
+                        .postcode("12345")
+                        .street("street")
+                        .build())
+                .pilotes(MEDIUM)
+                .build();
+
+        Client client = Client.builder()
+                .firstName("first")
+                .lastName("Last")
+                .email("mail@mail.com")
+                .telephone("123456789")
+                .build();
+
+        when(persistenceAdapter.updateOrder(Order.builder()
+                .deliveryAddress(Address.builder()
+                        .city("city")
+                        .country("country")
+                        .postcode("12345")
+                        .street("street")
+                        .build())
+                .pilotes(MEDIUM)
+                .orderTotal(BigDecimal.valueOf(13.30).setScale(2, RoundingMode.HALF_UP))
+                .number("1")
+                .build(), client))
+                .thenReturn(Order.builder()
+                        .deliveryAddress(Address.builder()
+                                .city("city")
+                                .country("country")
+                                .postcode("12345")
+                                .street("street")
+                                .build())
+                        .pilotes(MEDIUM)
+                        .orderTotal(BigDecimal.valueOf(13.30).setScale(2, RoundingMode.HALF_UP))
+                        .number("1")
+                        .build());
+
+
+        Order actual1 = subject.updateOrder(orderRequest, client);
+        actual1.setPilotes(BIG);
+
+        when(persistenceAdapter.updateOrder(actual1, client))
+                .thenReturn(Order.builder()
+                        .deliveryAddress(Address.builder()
+                                .city("city")
+                                .country("country")
+                                .postcode("12345")
+                                .street("street")
+                                .build())
+                        .pilotes(BIG)
+                        .orderTotal(BigDecimal.valueOf(19.95).setScale(2, RoundingMode.HALF_UP))
+                        .number("1")
+                        .build());
+
+        Order actual2 = subject.updateOrder(actual1, client);
+
+        Assertions.assertThat(actual2)
+                .hasFieldOrPropertyWithValue("number", "1")
+                .hasFieldOrPropertyWithValue("orderTotal", BigDecimal.valueOf(19.95).setScale(2, RoundingMode.HALF_UP))
+                .hasFieldOrPropertyWithValue("deliveryAddress", Address.builder()
+                        .city("city")
+                        .country("country")
+                        .postcode("12345")
+                        .street("street")
+                        .build())
+                .hasFieldOrPropertyWithValue("pilotes", BIG);
+    }
+
+    @Test
+    void shouldThrowIfTryingToUpdate5MinutesAfterOrderCreation() {
+        when(persistenceAdapter.getOrderTimestamp(any())).thenReturn(
+                Timestamp.valueOf(LocalDateTime.now().minus(5, ChronoUnit.MINUTES))
+        );
+
+        Order orderRequest = Order.builder()
+                .number("1")
+                .deliveryAddress(Address.builder()
+                        .city("city")
+                        .country("country")
+                        .postcode("12345")
+                        .street("street")
+                        .build())
+                .pilotes(MEDIUM)
+                .build();
+
+        Client client = Client.builder()
+                .firstName("first")
+                .lastName("Last")
+                .email("mail@mail.com")
+                .telephone("123456789")
+                .build();
+
+        Assertions.assertThatThrownBy(() -> subject.updateOrder(orderRequest, client))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("You cannot update order after 5 minutes since it's creation!");
+    }
+
 }

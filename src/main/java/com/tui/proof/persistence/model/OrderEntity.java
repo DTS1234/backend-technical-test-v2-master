@@ -22,7 +22,7 @@ public class OrderEntity {
     private Long id;
     private int pilotes;
     private BigDecimal orderTotal;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     private AddressEntity deliveryAddress;
     private Timestamp timestamp;
     @ManyToOne(cascade = CascadeType.PERSIST)

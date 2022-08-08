@@ -5,7 +5,6 @@ import com.tui.proof.orders.model.Order;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Value;
 
 import javax.validation.Valid;
 
@@ -16,7 +15,7 @@ import javax.validation.Valid;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateOrderRequest {
+public class OrderRequest {
     @Valid
     private Order order;
     @Valid

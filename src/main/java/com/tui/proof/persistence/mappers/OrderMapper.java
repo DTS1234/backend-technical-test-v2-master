@@ -1,9 +1,11 @@
-package com.tui.proof.persistence;
+package com.tui.proof.persistence.mappers;
 
 import com.tui.proof.orders.model.Address;
 import com.tui.proof.orders.model.Order;
 import com.tui.proof.persistence.model.AddressEntity;
 import com.tui.proof.persistence.model.OrderEntity;
+
+import java.util.Optional;
 
 /**
  * @author akazmierczak
@@ -34,6 +36,7 @@ public class OrderMapper {
         orderEntity.setOrderTotal(order.getOrderTotal());
         orderEntity.setPilotes(order.getPilotes());
         orderEntity.setDeliveryAddress(toEntity(order.getDeliveryAddress()));
+        orderEntity.setId(order.getNumber() == null ? null : Long.valueOf(order.getNumber()));
         return orderEntity;
     }
 

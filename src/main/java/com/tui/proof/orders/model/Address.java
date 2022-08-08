@@ -16,7 +16,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 public class Address {
   @NotBlank(message = "Street value is required!")
-  @Pattern(regexp = "^[a-zA-Z]+$", message = "Street value is invalid!")
+  @Pattern(regexp = "^[a-zA-Z0-9_.-]*$", message = "Street value is invalid!")
   private String street;
   @NotEmpty
   @Size(min = 5, max = 5, message = "Postcode should consist of 5 numbers.")

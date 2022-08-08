@@ -1,4 +1,4 @@
-package com.tui.proof.persistence;
+package com.tui.proof.persistence.mappers;
 
 import com.tui.proof.orders.model.Client;
 import com.tui.proof.persistence.model.ClientEntity;

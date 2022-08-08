@@ -8,7 +8,7 @@ import com.tui.proof.orders.OrderService;
 import com.tui.proof.orders.model.Address;
 import com.tui.proof.orders.model.Client;
 import com.tui.proof.orders.model.Order;
-import com.tui.proof.web.model.CreateOrderRequest;
+import com.tui.proof.web.model.OrderRequest;
 import com.tui.proof.web.model.ValidationErrorResponse;
 import com.tui.proof.web.model.Violation;
 import org.assertj.core.api.Assertions;
@@ -66,7 +66,7 @@ class OrdersControllerTest {
                 .telephone("123456789")
                 .build();
 
-        CreateOrderRequest request = new CreateOrderRequest(order, client);
+        OrderRequest request = new OrderRequest(order, client);
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
@@ -104,7 +104,7 @@ class OrdersControllerTest {
                 .telephone("123456789")
                 .build();
 
-        CreateOrderRequest request = new CreateOrderRequest(order, client);
+        OrderRequest request = new OrderRequest(order, client);
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
@@ -143,7 +143,7 @@ class OrdersControllerTest {
                 .telephone("123456789")
                 .build();
 
-        CreateOrderRequest request = new CreateOrderRequest(order, client);
+        OrderRequest request = new OrderRequest(order, client);
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
@@ -183,7 +183,7 @@ class OrdersControllerTest {
                 .telephone("123456789")
                 .build();
 
-        CreateOrderRequest request = new CreateOrderRequest(order, client);
+        OrderRequest request = new OrderRequest(order, client);
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
@@ -223,7 +223,7 @@ class OrdersControllerTest {
                 .telephone("123456789")
                 .build();
 
-        CreateOrderRequest request = new CreateOrderRequest(order, client);
+        OrderRequest request = new OrderRequest(order, client);
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
@@ -264,7 +264,7 @@ class OrdersControllerTest {
                 .telephone("123456789")
                 .build();
 
-        CreateOrderRequest request = new CreateOrderRequest(order, client);
+        OrderRequest request = new OrderRequest(order, client);
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
@@ -305,7 +305,7 @@ class OrdersControllerTest {
                 .telephone("123456789")
                 .build();
 
-        CreateOrderRequest request = new CreateOrderRequest(order, client);
+        OrderRequest request = new OrderRequest(order, client);
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
@@ -346,7 +346,7 @@ class OrdersControllerTest {
                 .telephone("123456789")
                 .build();
 
-        CreateOrderRequest request = new CreateOrderRequest(order, client);
+        OrderRequest request = new OrderRequest(order, client);
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
@@ -387,7 +387,7 @@ class OrdersControllerTest {
                 .telephone("123456789")
                 .build();
 
-        CreateOrderRequest request = new CreateOrderRequest(order, client);
+        OrderRequest request = new OrderRequest(order, client);
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
@@ -428,7 +428,7 @@ class OrdersControllerTest {
                 .telephone("123456789")
                 .build();
 
-        CreateOrderRequest request = new CreateOrderRequest(order, client);
+        OrderRequest request = new OrderRequest(order, client);
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
@@ -468,7 +468,7 @@ class OrdersControllerTest {
                 .telephone(wrongPhoneNumber)
                 .build();
 
-        CreateOrderRequest request = new CreateOrderRequest(order, client);
+        OrderRequest request = new OrderRequest(order, client);
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
@@ -485,7 +485,7 @@ class OrdersControllerTest {
                 .containsExactlyInAnyOrder(new Violation("client.telephone", "Phone number is invalid!"));
     }
 
-    private String mapToJson(CreateOrderRequest request) throws JsonProcessingException {
+    private String mapToJson(OrderRequest request) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, false);
         ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
