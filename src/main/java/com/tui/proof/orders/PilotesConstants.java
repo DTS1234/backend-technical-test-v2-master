@@ -1,8 +1,6 @@
 package com.tui.proof.orders;
 
-import java.math.BigDecimal;
-
-public class Constants {
+public class PilotesConstants {
 
     public static final double PRICE = 1.33;
     public static final int SMALL = 5;

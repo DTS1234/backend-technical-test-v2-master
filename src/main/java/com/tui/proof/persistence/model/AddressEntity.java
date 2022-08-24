@@ -2,10 +2,7 @@ package com.tui.proof.persistence.model;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * @author akazmierczak
@@ -15,6 +12,7 @@ import javax.persistence.Id;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@Table(name = "ADDRESS")
 public class AddressEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,4 +25,15 @@ public class AddressEntity {
     private String city;
     @Getter @Setter
     private String country;
+
+    @Override
+    public String toString() {
+        return "AddressEntity{" +
+                "id=" + id +
+                ", street='" + street + '\'' +
+                ", postcode='" + postcode + '\'' +
+                ", city='" + city + '\'' +
+                ", country='" + country + '\'' +
+                '}';
+    }
 }

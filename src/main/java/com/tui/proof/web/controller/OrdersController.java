@@ -1,6 +1,7 @@
 package com.tui.proof.web.controller;
 
 import com.tui.proof.orders.OrderService;
+import com.tui.proof.orders.model.Client;
 import com.tui.proof.orders.model.Order;
 import com.tui.proof.web.model.CustomerOrderSearchFilter;
 import com.tui.proof.web.model.OrderRequest;
@@ -41,7 +42,7 @@ public class OrdersController {
     }
 
     @GetMapping(value = "/orders")
-    public Collection<Order> searchForOrdersByClientData(CustomerOrderSearchFilter searchFilter) {
+    public Collection<Client> searchForOrdersByClientData(CustomerOrderSearchFilter searchFilter) {
         return orderService.filterOrders(searchFilter);
     }
 

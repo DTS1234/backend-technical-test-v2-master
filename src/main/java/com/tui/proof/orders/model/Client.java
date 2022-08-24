@@ -1,11 +1,13 @@
 package com.tui.proof.orders.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -13,7 +15,8 @@ import javax.validation.constraints.*;
 @Builder
 public class Client {
 
-    private final String regexForTelephone = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{3,6}$";
+    @JsonIgnore
+    private final static String regexForTelephone = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{3,6}$";
 
     @NotBlank(message = "First name is required!")
     private String firstName;
@@ -24,5 +27,7 @@ public class Client {
     @NotNull(message = "Telephone number is required!")
     private String telephone;
     @Email(message = "Email is invalid!")
+    @NotBlank(message = "Email is required!")
     private String email;
+    private List<Order> orders;
 }

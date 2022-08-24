@@ -4,25 +4,30 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tui.proof.orders.model.Address;
 import com.tui.proof.orders.model.Client;
 import com.tui.proof.orders.model.Order;
-import com.tui.proof.persistence.repositories.AddressRepository;
-import com.tui.proof.persistence.repositories.ClientRepository;
-import com.tui.proof.persistence.repositories.OrderRepository;
 import com.tui.proof.persistence.PersistenceAdapter;
 import com.tui.proof.persistence.model.ClientEntity;
 import com.tui.proof.persistence.model.OrderEntity;
+import com.tui.proof.persistence.repositories.AddressRepository;
+import com.tui.proof.persistence.repositories.ClientRepository;
+import com.tui.proof.persistence.repositories.OrderRepository;
+import com.tui.proof.persistence.repositories.UserRepository;
 import com.tui.proof.web.RequestHelper;
 import com.tui.proof.web.model.CustomerOrderSearchFilter;
 import com.tui.proof.web.model.OrderRequest;
+import io.restassured.RestAssured;
 import io.restassured.common.mapper.TypeRef;
 import io.restassured.http.ContentType;
+import io.restassured.parsing.Parser;
+import lombok.val;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.jdbc.Sql;
 
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
@@ -34,14 +39,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.tui.proof.orders.Constants.BIG;
-import static com.tui.proof.orders.Constants.PRICE;
+import static com.tui.proof.orders.PilotesConstants.BIG;
+import static com.tui.proof.orders.PilotesConstants.PRICE;
 import static io.restassured.RestAssured.given;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = {MainApplication.class, PersistenceAdapter.class, OrderRepository.class}
 )
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class IntegrationTest {
 
     public static final String BASE_PATH = "http://localhost:%s";
@@ -55,17 +61,10 @@ class IntegrationTest {
     @Autowired
     private AddressRepository addressRepository;
 
-    @BeforeEach
-    public void setUp() {
-        orderRepository.deleteAll();
-        clientRepository.deleteAll();
-    }
-
     @Transactional
     @ParameterizedTest
     @ValueSource(ints = {5, 10, 15})
     void shouldCreatePilotesWithEveryValuePossible(int value) {
-
         Order order = Order.builder()
                 .deliveryAddress(Address.builder()
                         .city("Milan")
@@ -84,13 +83,14 @@ class IntegrationTest {
                 .build();
 
         OrderRequest request = new OrderRequest(order, client);
-
+        RestAssured.defaultParser = Parser.JSON;
         Order actual = given()
                 .contentType(ContentType.JSON)
                 .body(request)
                 .when()
                 .post(String.format(BASE_PATH + "/orders", port))
                 .then()
+                .statusCode(200)
                 .extract()
                 .as(new TypeRef<>() {
                 });
@@ -105,7 +105,7 @@ class IntegrationTest {
                         .street("Street")
                         .build())
                 .orderTotal(expectedPrice)
-                .number(String.valueOf(value / 5))
+                .number(actual.getNumber())
                 .pilotes(value)
                 .build();
 
@@ -113,8 +113,9 @@ class IntegrationTest {
                 .usingRecursiveComparison()
                 .isEqualTo(expected);
 
-        OrderEntity savedOrder = orderRepository.findById((long) (value / 5)).get();
+        OrderEntity savedOrder = orderRepository.findById(Long.valueOf(actual.getNumber())).orElse(null);
 
+        assert savedOrder != null;
         Assertions.assertThat(savedOrder.getTimestamp())
                 .isBeforeOrEqualTo(Timestamp.valueOf(LocalDateTime.now()));
 
@@ -124,6 +125,7 @@ class IntegrationTest {
         Assertions.assertThat(savedOrder.getClient())
                 .usingRecursiveComparison()
                 .ignoringFields("orders")
+                .ignoringFields("id")
                 .isEqualTo(expectedClientEntity);
         Assertions.assertThat(savedOrder.getClient().getOrders())
                 .contains(savedOrder);
@@ -185,6 +187,7 @@ class IntegrationTest {
                 .when()
                 .put(String.format(BASE_PATH + "/orders/" + created.getNumber(), port))
                 .then()
+                .statusCode(200)
                 .extract()
                 .as(new TypeRef<>() {
                 });
@@ -205,9 +208,10 @@ class IntegrationTest {
                 .usingRecursiveComparison()
                 .isEqualTo(expectedAfterUpdate);
 
-        OrderEntity orderEntity = orderRepository.findById(Long.valueOf(created.getNumber())).get();
-        ClientEntity clientEntity = clientRepository.findById(1L).get();
+        OrderEntity orderEntity = orderRepository.findById(Long.valueOf(created.getNumber())).orElse(null);
+        ClientEntity clientEntity = clientRepository.findById(1L).orElse(null);
 
+        assert orderEntity != null;
         Assertions.assertThat(orderEntity.getClient()).isEqualTo(clientEntity);
 
         ClientEntity expectedClientEntity = new ClientEntity(1L, client.getEmail(), client.getTelephone(),
@@ -221,7 +225,6 @@ class IntegrationTest {
     }
 
     @Test
-    @Transactional
     void shouldThrowWhenTryingToUpdateOrderAfterFiveMinutesSinceCreation() {
         Order order = Order.builder()
                 .deliveryAddress(Address.builder()
@@ -265,49 +268,70 @@ class IntegrationTest {
         client.setEmail("newmail@gmail.com");
         client.setTelephone("123456000");
 
-        OrderEntity orderEntity = orderRepository.findById(Long.valueOf(created.getNumber())).get();
-        orderEntity.setTimestamp(Timestamp.valueOf(LocalDateTime.now().plus(5, ChronoUnit.MINUTES)));
-        orderRepository.save(orderEntity);
+        // modify timestamp for test
+        OrderEntity orderEntity = orderRepository.findById(Long.valueOf(created.getNumber())).orElseThrow();
+        orderEntity.setTimestamp(Timestamp.valueOf(LocalDateTime.now().minus(5, ChronoUnit.MINUTES)));
+        OrderEntity saved = orderRepository.save(orderEntity);
+        orderRepository.flush();
 
         OrderRequest updateOrderRequest = new OrderRequest(order, client);
+
         // update
         given()
                 .contentType(ContentType.JSON)
                 .body(updateOrderRequest)
                 .when()
-                .put(String.format(BASE_PATH + "/orders/" + created.getNumber(), port))
+                .put(String.format(BASE_PATH + "/orders/" + saved.getId(), port))
                 .then()
                 .statusCode(400);
     }
 
     @Test
+    @Sql(value = "customSearchData.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     void shouldLookForOrderDataByCustomerCustomSearch() {
 
-        CustomerOrderSearchFilter search = CustomerOrderSearchFilter.requestBuilder()
-                .email("adam@mail.com")
+        val search = CustomerOrderSearchFilter.requestBuilder()
+                .emailEndsWith(".com")
                 .firstNameContains("Adam")
                 .lastNameStartsWith("K")
                 .telephoneEndsWith("33")
-                .pageNumber(1)
+                .pageNumber(0)
                 .pageSize(10)
-                .order(com.tui.proof.web.Order.DESC)
                 .sort("firstName")
+                .order(com.tui.proof.web.Order.DESC)
                 .build();
+
 
         Map<String, Object> params = new RequestHelper(new ObjectMapper()).convertRequestToParams(search);
 
-        List<Order> actual = given()
+        List<Client> actual = given()
                 .contentType(ContentType.JSON)
                 .params(params)
+                .auth().basic("user", "pass123")
                 .when()
                 .get(String.format(BASE_PATH + "/orders/", port))
                 .then()
-                .statusCode(200)
                 .extract()
                 .as(new TypeRef<>() {
                 });
 
-        Assertions.assertThat(actual).isNotEmpty();
+        Assertions.assertThat(actual).hasSize(2)
+                .containsExactly(
+                        Client.builder()
+                                .email("adam@gmail.com")
+                                .telephone("733 777 133")
+                                .firstName("AdamZ")
+                                .lastName("Ksecond")
+                                .orders(Collections.emptyList())
+                                .build(),
+                        Client.builder()
+                                .email("adam@mail.com")
+                                .telephone("733 666 133")
+                                .firstName("Adam")
+                                .lastName("Klast")
+                                .orders(Collections.emptyList())
+                                .build()
+                );
     }
 
 

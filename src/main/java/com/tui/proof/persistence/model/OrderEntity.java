@@ -16,6 +16,7 @@ import java.sql.Timestamp;
 @EqualsAndHashCode
 @Getter
 @Setter
+@Table(name = "ORDER_ENTITY")
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

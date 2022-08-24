@@ -2,16 +2,14 @@ package com.tui.proof.web.model;
 
 import com.tui.proof.web.Order;
 import com.tui.proof.web.Paging;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class CustomerOrderSearchFilter extends Paging {
 
     private String firstName;
@@ -81,66 +79,66 @@ public class CustomerOrderSearchFilter extends Paging {
     }
 
     public Optional<String> getFirstName() {
-        return Optional.ofNullable(firstName);
+        return Optional.ofNullable(StringUtils.stripToNull(firstName));
     }
 
     public Optional<String> getFirstNameEndsWith() {
-        return Optional.ofNullable(firstNameEndsWith);
+        return Optional.ofNullable(StringUtils.stripToNull(firstNameEndsWith));
     }
 
     public Optional<String> getFirstNameStartsWith() {
-        return Optional.ofNullable(firstNameStartsWith);
+        return Optional.ofNullable(StringUtils.stripToNull(firstNameStartsWith));
     }
 
     public Optional<String> getFirstNameContains() {
-        return Optional.ofNullable(firstNameContains);
+        return Optional.ofNullable(StringUtils.stripToNull(firstNameContains));
     }
 
     public Optional<String> getLastName() {
-        return Optional.ofNullable(lastName);
+        return Optional.ofNullable(StringUtils.stripToNull(lastName));
     }
 
     public Optional<String> getLastNameStartsWith() {
-        return Optional.ofNullable(lastNameStartsWith);
+        return Optional.ofNullable(StringUtils.stripToNull(lastNameStartsWith));
     }
 
     public Optional<String> getLastNameEndsWith() {
-        return Optional.ofNullable(lastNameEndsWith);
+        return Optional.ofNullable(StringUtils.stripToNull(lastNameEndsWith));
     }
 
     public Optional<String> getLastNameContains() {
-        return Optional.ofNullable(lastNameContains);
+        return Optional.ofNullable(StringUtils.stripToNull(lastNameContains));
     }
 
     public Optional<String> getTelephone() {
-        return Optional.ofNullable(telephone);
+        return Optional.ofNullable(StringUtils.stripToNull(telephone));
     }
 
     public Optional<String> getTelephoneStartsWith() {
-        return Optional.ofNullable(telephoneStartsWith);
+        return Optional.ofNullable(StringUtils.stripToNull(telephoneStartsWith));
     }
 
     public Optional<String> getTelephoneEndsWith() {
-        return Optional.ofNullable(telephoneEndsWith);
+        return Optional.ofNullable(StringUtils.stripToNull(telephoneEndsWith));
     }
 
     public Optional<String> getTelephoneContains() {
-        return Optional.ofNullable(telephoneContains);
+        return Optional.ofNullable(StringUtils.stripToNull(telephoneContains));
     }
 
     public Optional<String> getEmail() {
-        return Optional.ofNullable(email);
+        return Optional.ofNullable(StringUtils.stripToNull(email));
     }
 
     public Optional<String> getEmailStartsWith() {
-        return Optional.ofNullable(emailStartsWith);
+        return Optional.ofNullable(StringUtils.stripToNull(emailStartsWith));
     }
 
     public Optional<String> getEmailEndsWith() {
-        return Optional.ofNullable(emailEndsWith);
+        return Optional.ofNullable(StringUtils.stripToNull(emailEndsWith));
     }
 
     public Optional<String> getEmailContains() {
-        return Optional.ofNullable(emailContains);
+        return Optional.ofNullable(StringUtils.stripToNull(emailContains));
     }
 }

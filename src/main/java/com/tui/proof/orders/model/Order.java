@@ -16,8 +16,8 @@ public class Order {
 
     private String number;
 
-    @NotNull(message = "Delivery address is required!")
     @Valid
+    @NotNull(message = "Delivery address is required!")
     private Address deliveryAddress;
     @Min(value = 5, message = "Number of pilotes have to be equal 5, 10 or 15")
     @Max(value = 15, message = "Number of pilotes have to be equal 5, 10 or 15")

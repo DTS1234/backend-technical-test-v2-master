@@ -27,7 +27,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.Collections;
 
-import static com.tui.proof.orders.Constants.SMALL;
+import static com.tui.proof.orders.PilotesConstants.SMALL;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -70,17 +70,16 @@ class OrdersControllerTest {
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapToJson(request)))
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapToJson(request)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
         // then
         ValidationErrorResponse actual = mapToError(mvcResult);
         Assertions.assertThat(actual.violations)
-                .hasSize(1)
-                .isEqualTo(Collections.singletonList(new Violation("order.deliveryAddress", "Delivery address is required!")));
+                .contains(new Violation("order.deliveryAddress", "Delivery address is required!"));
     }
 
     @Test
@@ -108,9 +107,9 @@ class OrdersControllerTest {
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapToJson(request)))
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapToJson(request)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -147,9 +146,9 @@ class OrdersControllerTest {
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapToJson(request)))
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapToJson(request)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -187,9 +186,9 @@ class OrdersControllerTest {
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapToJson(request)))
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapToJson(request)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -227,9 +226,9 @@ class OrdersControllerTest {
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapToJson(request)))
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapToJson(request)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -268,9 +267,9 @@ class OrdersControllerTest {
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapToJson(request)))
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapToJson(request)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -282,16 +281,15 @@ class OrdersControllerTest {
                         new Violation("order.deliveryAddress.city", "City value is invalid!"));
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"", "  "})
-    void shouldThrowWhenAddressStreetIsInvalid(String wrongStreetValue) throws Exception {
+    @Test
+    void shouldThrowWhenAddressStreetIsEmpty() throws Exception {
         // given
         Order order = Order.builder()
                 .deliveryAddress(Address.builder()
                         .city("city")
                         .country("country")
                         .postcode("12345")
-                        .street(wrongStreetValue)
+                        .street("")
                         .build())
                 .number("123")
                 .orderTotal(BigDecimal.valueOf(10L))
@@ -309,18 +307,17 @@ class OrdersControllerTest {
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapToJson(request)))
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapToJson(request)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
         // then
         ValidationErrorResponse actual = mapToError(mvcResult);
         Assertions.assertThat(actual.violations)
-                .hasSize(2)
-                .containsExactlyInAnyOrder(new Violation("order.deliveryAddress.street", "Street value is required!"),
-                        new Violation("order.deliveryAddress.street", "Street value is invalid!"));
+                .hasSize(1)
+                .containsExactlyInAnyOrder(new Violation("order.deliveryAddress.street", "Street value is required!"));
     }
 
     @ParameterizedTest
@@ -350,9 +347,9 @@ class OrdersControllerTest {
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapToJson(request)))
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapToJson(request)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -391,9 +388,9 @@ class OrdersControllerTest {
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapToJson(request)))
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapToJson(request)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -432,9 +429,9 @@ class OrdersControllerTest {
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapToJson(request)))
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapToJson(request)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -443,6 +440,48 @@ class OrdersControllerTest {
         Assertions.assertThat(actual.violations)
                 .hasSize(1)
                 .containsExactlyInAnyOrder(new Violation("client.email", "Email is invalid!"));
+    }
+
+
+    @ParameterizedTest
+    @ValueSource(strings = {" ", "  "})
+    void shouldThrowWhenEmailIsBlank(String wrongEmail) throws Exception {
+        // given
+        Order order = Order.builder()
+                .deliveryAddress(Address.builder()
+                        .city("city")
+                        .country("Country")
+                        .postcode("12345")
+                        .street("street")
+                        .build())
+                .number("123")
+                .orderTotal(BigDecimal.valueOf(10L))
+                .pilotes(5)
+                .build();
+
+        Client client = Client.builder()
+                .firstName("first")
+                .lastName("Last")
+                .email(wrongEmail)
+                .telephone("123456789")
+                .build();
+
+        OrderRequest request = new OrderRequest(order, client);
+
+        // when
+        MvcResult mvcResult = this.mockMvc.perform(post("/orders")
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapToJson(request)))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        // then
+        ValidationErrorResponse actual = mapToError(mvcResult);
+        Assertions.assertThat(actual.violations)
+                .hasSize(2)
+                .containsExactlyInAnyOrder(new Violation("client.email", "Email is invalid!"),
+                        new Violation("client.email", "Email is required!"));
     }
 
     @ParameterizedTest
@@ -472,9 +511,9 @@ class OrdersControllerTest {
 
         // when
         MvcResult mvcResult = this.mockMvc.perform(post("/orders")
-                .accept(MediaType.APPLICATION_JSON_VALUE)
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(mapToJson(request)))
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(mapToJson(request)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 

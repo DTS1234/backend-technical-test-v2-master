@@ -14,15 +14,15 @@ import com.tui.proof.persistence.specification.ClientSpecification;
 import com.tui.proof.web.model.CustomerOrderSearchFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -41,16 +41,17 @@ public class PersistenceAdapter {
     public Order saveOrder(Order order, Client client) {
         OrderEntity orderEntity = OrderMapper.toEntity(order);
         ClientEntity clientEntity = ClientMapper.toEntity(client);
-
         AddressEntity addressEntity = orderEntity.getDeliveryAddress();
         Optional<AddressEntity> optionalAddressEntity = addressRepository.findAddressEntityByCityAndAndCountryAndPostcodeAndStreet(addressEntity.getCity(), addressEntity.getCountry(), addressEntity.getPostcode(), addressEntity.getStreet());
+
         if (optionalAddressEntity.isPresent()) {
+            // if address already exists set the existing one instead of creating record
             orderEntity.setDeliveryAddress(optionalAddressEntity.get());
         } else {
             orderEntity.setDeliveryAddress(addressRepository.save(addressEntity));
         }
 
-        Optional<ClientEntity> optionalClient = clientRepository.findClientEntityByEmailOrTelephone(clientEntity.getEmail(), client.getTelephone());
+        Optional<ClientEntity> optionalClient = clientRepository.findClientEntityByEmail(clientEntity.getEmail());
         if (optionalClient.isPresent()) {
             orderEntity.setClient(optionalClient.get());
         } else {
@@ -69,6 +70,7 @@ public class PersistenceAdapter {
         return orderEntity.getTimestamp();
     }
 
+    @Transactional
     public Order updateOrder(Order order, Client client) {
 
         OrderEntity existingOrder = orderRepository.findById(Long.valueOf(order.getNumber())).orElseThrow(() ->
@@ -106,20 +108,13 @@ public class PersistenceAdapter {
         return clientToUpdate;
     }
 
-    public List<Order> find(CustomerOrderSearchFilter filter) {
+    public List<Client> find(CustomerOrderSearchFilter filter) {
         ClientSpecification spec = new ClientSpecification(filter);
-        Pageable of = PageRequest.of(filter.getPageNumber(), filter.getPageSize());
+
+        Pageable of = PagingHelper.getPageable(filter);
 
         Page<ClientEntity> all = clientRepository.findAll(spec, of);
-        List<Order> result = all.getContent().stream()
-                .map(ClientEntity::getOrders)
-                .map(orders -> orders.stream()
-                        .map(OrderMapper::toDomain)
-                        .collect(Collectors.toList()))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
 
-
-        return result;
+        return all.getContent().stream().map(ClientMapper::toDomain).collect(Collectors.toList());
     }
 }

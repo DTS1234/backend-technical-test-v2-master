@@ -12,19 +12,21 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@Table(name = "CLIENT")
 public class ClientEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String email;
     private String telephone;
+    @Column(name = "FIRSTNAME")
     private String firstName;
+    @Column(name = "LASTNAME")
     private String lastName;
     @OneToMany(mappedBy = "client")
     private List<OrderEntity> orders;

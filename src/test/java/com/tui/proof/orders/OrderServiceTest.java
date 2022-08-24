@@ -3,7 +3,6 @@ package com.tui.proof.orders;
 import com.tui.proof.orders.model.Address;
 import com.tui.proof.orders.model.Client;
 import com.tui.proof.orders.model.Order;
-import com.tui.proof.orders.OrderService;
 import com.tui.proof.persistence.PersistenceAdapter;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,16 +11,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.NoSuchElementException;
 
-import static com.tui.proof.orders.Constants.*;
+import static com.tui.proof.orders.PilotesConstants.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -112,6 +109,8 @@ class OrderServiceTest {
     @ParameterizedTest
     @ValueSource(ints = {6, 11, 14, 16})
     void shouldThrowWhenPilotesValueIsNot5or10or15ForUpdate(int wrongPilotesValue) {
+        when(persistenceAdapter.getOrderTimestamp(any())).thenReturn(Timestamp.valueOf(LocalDateTime.now()));
+
         Order orderRequest = Order.builder()
                 .deliveryAddress(Address.builder()
                         .city("city")
@@ -136,6 +135,8 @@ class OrderServiceTest {
 
     @Test
     void shouldUpdatePriceValueWhenUpdating() {
+        when(persistenceAdapter.getOrderTimestamp(any())).thenReturn(Timestamp.valueOf(LocalDateTime.now()));
+
         Order orderRequest = Order.builder()
                 .number("1")
                 .deliveryAddress(Address.builder()
@@ -210,6 +211,7 @@ class OrderServiceTest {
 
     @Test
     void shouldThrowIfTryingToUpdate5MinutesAfterOrderCreation() {
+        // mocking orderTimestamp value to 5 minutes before update
         when(persistenceAdapter.getOrderTimestamp(any())).thenReturn(
                 Timestamp.valueOf(LocalDateTime.now().minus(5, ChronoUnit.MINUTES))
         );

@@ -5,20 +5,16 @@ import com.tui.proof.orders.model.Order;
 import com.tui.proof.persistence.PersistenceAdapter;
 import com.tui.proof.web.model.CustomerOrderSearchFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-import static com.tui.proof.orders.Constants.*;
+import static com.tui.proof.orders.PilotesConstants.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +22,7 @@ public class OrderService {
 
     private final PersistenceAdapter persistenceAdapter;
 
-    public List<Order> filterOrders(CustomerOrderSearchFilter filter) {
+    public List<Client> filterOrders(CustomerOrderSearchFilter filter) {
         return persistenceAdapter.find(filter);
     }
 
@@ -51,7 +47,8 @@ public class OrderService {
     }
 
     private boolean is5MinutesAfterCreation(Timestamp orderTimestamp) {
-        return orderTimestamp.before(Timestamp.valueOf(LocalDateTime.now().plus(5, ChronoUnit.MINUTES)));
+        LocalDateTime dateOfOrderPlusFiveMinutes = orderTimestamp.toLocalDateTime().plusMinutes(5);
+        return Timestamp.valueOf(LocalDateTime.now()).after(Timestamp.valueOf(dateOfOrderPlusFiveMinutes));
     }
 
     private void setPriceForOrder(Order orderRequest) {
